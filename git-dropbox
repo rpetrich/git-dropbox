@@ -1,6 +1,13 @@
 #!/bin/sh
 
-if [ ! -d ~/Dropbox ]; then
+if [ ! -f ~/.dropbox/host.db ]; then
+	echo "dropbox database not found. install dropbox" >&2
+	exit 1
+fi
+
+DROPBOX=$(awk 'FNR == 2' ~/.dropbox/host.db | openssl enc -a -d)
+
+if [ ! -d "$DROPBOX" ]; then
 	echo "dropbox folder not found. install dropbox" >&2
 	exit 1
 fi
@@ -16,8 +23,8 @@ usage ()
 
 init ()
 {
-	if [ ! -d ~/Dropbox/git ]; then
-		mkdir ~/Dropbox/git
+	if [ ! -d "$DROPBOX/git" ]; then
+		mkdir "$DROPBOX/git"
 	fi
 	
 	REPO_ROOT=$(git rev-parse --show-toplevel)
@@ -27,7 +34,7 @@ init ()
 	fi
 
 	REPO_NAME=$(basename "$REPO_ROOT")
-	BACKUP_PATH=~/Dropbox/git/$REPO_NAME
+	BACKUP_PATH="$DROPBOX/git/$REPO_NAME"
 	
 	if [ ! -d $BACKUP_PATH ]; then
 		mkdir -p $BACKUP_PATH
@@ -80,12 +87,12 @@ case "$1" in
 		break;;
 	clone)
 		if [ $# = 2 ]; then
-			git clone ~/Dropbox/git/$2 -o dropbox --recursive
+			git clone "$DROPBOX/git/$2" -o dropbox --recursive
 		else
 			echo "usage: git dropbox clone <project>"
 			echo "available projects:"
-			mkdir -p ~/Dropbox/git
-			ls ~/Dropbox/git
+			mkdir -p "$DROPBOX/git"
+			ls "$DROPBOX/git"
 		fi
 		break;;
 	*)
