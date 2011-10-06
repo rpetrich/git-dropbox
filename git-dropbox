@@ -7,7 +7,7 @@ fi
 
 usage ()
 {
-	echo "usage: git dropbox send"
+	echo "usage: git dropbox send [--mirror]"
 	echo "   or: git dropbox fetch"
 	echo "   or: git dropbox clone"
 	exit 1
@@ -46,11 +46,22 @@ init ()
 
 case "$1" in
 	send)
-		if [ $# != 1 ]; then
-			usage
-		fi
-		init
-		git push --all dropbox
+		case $# in
+			1)
+				init
+				git push --all dropbox
+				git push --tags dropbox
+				break;;
+			2)
+				if [ "$2" != "--mirror" ]; then
+					usage
+				fi
+				git push --mirror dropbox
+				break;;
+			*)
+				usage
+				break;;
+		esac
 		break;;
 	fetch)
 		if [ $# != 1 ]; then
