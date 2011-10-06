@@ -1,0 +1,5 @@
+#!/bin/sh
+# Automirror to Dropbox
+# Somewhat dangerous if more than one machine is doing this
+echo "Mirroring to Dropbox…"
+git dropbox send --mirror &>/dev/null
