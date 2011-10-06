@@ -10,6 +10,7 @@ usage ()
 	echo "usage: git dropbox send [--mirror]"
 	echo "   or: git dropbox fetch"
 	echo "   or: git dropbox clone <project>"
+	echo "   or: git dropbox init"
 	exit 1
 }
 
@@ -45,6 +46,12 @@ init ()
 }
 
 case "$1" in
+	init)
+		if [ $# != 1 ]; then
+			usage
+		fi
+		init
+		break;;
 	send)
 		case $# in
 			1)
