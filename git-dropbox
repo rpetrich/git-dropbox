@@ -1,0 +1,75 @@
+#!/bin/sh
+
+if [ ! -d ~/Dropbox ]; then
+	echo "dropbox folder not found. install dropbox" >&2
+	exit 1
+fi
+
+usage ()
+{
+	echo "usage: git dropbox send"
+	echo "   or: git dropbox fetch"
+	echo "   or: git dropbox clone"
+	exit 1
+}
+
+init ()
+{
+	if [ ! -d ~/Dropbox/git ]; then
+		mkdir ~/Dropbox/git
+	fi
+	
+	REPO_ROOT=$(git rev-parse --show-toplevel)
+	if [ -z "$REPO_ROOT" ]; then
+		echo
+		exit 1
+	fi
+
+	REPO_NAME=$(basename "$REPO_ROOT")
+	BACKUP_PATH=~/Dropbox/git/$REPO_NAME
+	
+	if [ ! -d $BACKUP_PATH ]; then
+		mkdir -p $BACKUP_PATH
+		(
+			pushd $BACKUP_PATH
+			git init --bare
+			popd
+		) > /dev/null
+	fi
+	
+	if ( git remote | grep -e ^dropbox$ > /dev/null ) then
+		true
+	else
+		git remote add dropbox "$BACKUP_PATH"
+	fi
+}
+
+case "$1" in
+	send)
+		if [ $# != 1 ]; then
+			usage
+		fi
+		init
+		git push --all dropbox
+		break;;
+	fetch)
+		if [ $# != 1 ]; then
+			usage
+		fi
+		init
+		git fetch dropbox
+		break;;
+	clone)
+		if [ $# = 2 ]; then
+			git clone ~/Dropbox/git/$2 -o dropbox --recursive
+		else
+			echo "usage: git dropbox clone <project>"
+			echo "available projects:"
+			mkdir -p ~/Dropbox/git
+			ls ~/Dropbox/git
+		fi
+		break;;
+	*)
+		usage
+		break;;
+esac
