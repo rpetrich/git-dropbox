@@ -9,7 +9,7 @@ usage ()
 {
 	echo "usage: git dropbox send [--mirror]"
 	echo "   or: git dropbox fetch"
-	echo "   or: git dropbox clone"
+	echo "   or: git dropbox clone <project>"
 	exit 1
 }
 
@@ -49,10 +49,11 @@ case "$1" in
 		case $# in
 			1)
 				init
+				git push --tags -q dropbox
 				git push --all dropbox
-				git push --tags dropbox
 				break;;
 			2)
+				init
 				if [ "$2" != "--mirror" ]; then
 					usage
 				fi
